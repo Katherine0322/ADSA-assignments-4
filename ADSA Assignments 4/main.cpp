@@ -22,7 +22,7 @@ vector<string> splitByComma(const string& s){
             cur.push_back(ch);
         }
     }
-    parts.push_back(cur); // last part
+    parts.push_back(cur);
     return parts;
 }
 
@@ -41,10 +41,15 @@ void unionSet(int a, int b, vector<int>& parent){
 }
 
 int main(){
-    string country_s, build_s, destroy_s;
-    cin >> country_s >> build_s >> destroy_s;
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
 
-    // split the three input strings by commas and store them separately
+    string country_s, build_s, destroy_s;
+    getline(cin, country_s);
+    getline(cin, build_s);
+    getline(cin, destroy_s);
+
+    // split
     vector<string> country = splitByComma(country_s);
     vector<string> build   = splitByComma(build_s);
     vector<string> destroy = splitByComma(destroy_s);
@@ -89,6 +94,6 @@ int main(){
         }
     }
 
-    cout << total << endl; // print the final answer cost (including savings)
+    cout << total << "\n";
     return 0;
 }
