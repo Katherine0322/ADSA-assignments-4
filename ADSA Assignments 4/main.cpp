@@ -14,8 +14,9 @@ int getCost(char c){
 vector<string> splitByComma(const string& s){
     vector<string> parts;
     string cur;
-    for(char ch : s){
-        if(ch == ','){
+    for (int i = 0; i < (int)s.size(); i++){
+        char ch = s[i];
+        if (ch == ','){
             parts.push_back(cur);
             cur.clear();
         }else{
@@ -28,7 +29,7 @@ vector<string> splitByComma(const string& s){
 
 // find the parent of a node (basic union-find function)
 int findSet(int x, vector<int>& parent){
-    if(parent[x]==x) return x;
+    if (parent[x]==x) return x;
     parent[x] = findSet(parent[x], parent); // path compression
     return parent[x];
 }
@@ -41,53 +42,52 @@ void unionSet(int a, int b, vector<int>& parent){
 }
 
 int main(){
-    // 
     string country_s, build_s, destroy_s;
     cin >> country_s >> build_s >> destroy_s;
 
-    // split into rows
     vector<string> country = splitByComma(country_s);
     vector<string> build   = splitByComma(build_s);
     vector<string> destroy = splitByComma(destroy_s);
 
     int n = (int)country.size();
-    vector<pair<int, pair<int, int>>> edges; // (weight, (u,v))
+
+    // NOTE: put a space between >> to avoid old-compiler parse issue
+    vector<pair<int, pair<int,int> > > edges;  // (weight, (u,v))
     long long base = 0;
 
-    // create edge list (only upper triangle to avoid duplicates)
-    for(int i=0; i<n; i++){
-        for(int j=i+1; j<n; j++){
-            if(country[i][j]=='1'){
+    // create edge list (upper triangle only)
+    for (int i = 0; i < n; i++){
+        for (int j = i + 1; j < n; j++){
+            if (country[i][j]=='1'){
                 int d = getCost(destroy[i][j]);
-                base += d;                         // assume destroy all first
-                edges.push_back({-d, {i, j}});     // saving if we keep it
+                base += d; // assume destroy all first
+                // use make_pair instead of brace init
+                edges.push_back(make_pair(-d, make_pair(i, j))); // saving if keep
             }else{
                 int b = getCost(build[i][j]);
-                edges.push_back({ b, {i, j}});     // cost to build a new road
+                edges.push_back(make_pair(b, make_pair(i, j)));  // build cost
             }
         }
     }
 
-    // sort edges by weight (smallest first)
     sort(edges.begin(), edges.end());
 
-    // union-find init
     vector<int> parent(n);
-    for(int i=0;i<n;i++) parent[i]=i;
+    for (int i = 0; i < n; i++) parent[i] = i;
 
     long long total = base;
 
-    // Kruskal: pick edges if they connect different components
-    for(int i=0; i<(int)edges.size(); i++){
-        int w = edges[i].first;
-        int u = edges[i].second.first;
-        int v = edges[i].second.second;
+    // Kruskal
+    for (int k = 0; k < (int)edges.size(); k++){
+        int w = edges[k].first;
+        int u = edges[k].second.first;
+        int v = edges[k].second.second;
         if (findSet(u, parent) != findSet(v, parent)){
             unionSet(u, v, parent);
-            total += w;  // add cost (or saving if negative)
+            total += w; // may be negative (saving)
         }
     }
 
-    cout << total << endl; // 
+    cout << total << endl; // flush
     return 0;
 }
