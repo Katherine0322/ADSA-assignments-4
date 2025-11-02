@@ -4,14 +4,6 @@
 #include <algorithm>
 using namespace std;
 
-/*
- * Changes in this version:
- * - Read input with `cin >> country_s >> build_s >> destroy_s;`
- *   so it works for one-line inputs like:
- *     011,101,110 ABD,BAC,DCA ABD,BAC,DCA
- * - Rest logic unchanged (Kruskal + Union-Find).
- */
-
 // convert a letter into a numeric cost (A-Z -> 0-25, a-z -> 26-51)
 int getCost(char c){
     if ('A' <= c && c <= 'Z') return c - 'A';
@@ -49,11 +41,8 @@ void unionSet(int a, int b, vector<int>& parent){
 }
 
 int main(){
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
+    // 
     string country_s, build_s, destroy_s;
-    // Read three tokens (works for one-line or multi-line inputs)
     cin >> country_s >> build_s >> destroy_s;
 
     // split into rows
@@ -89,7 +78,7 @@ int main(){
     long long total = base;
 
     // Kruskal: pick edges if they connect different components
-    for(size_t i=0; i<edges.size(); i++){
+    for(int i=0; i<(int)edges.size(); i++){
         int w = edges[i].first;
         int u = edges[i].second.first;
         int v = edges[i].second.second;
@@ -99,6 +88,6 @@ int main(){
         }
     }
 
-    cout << total << "\n";
+    cout << total << endl; // 
     return 0;
 }
