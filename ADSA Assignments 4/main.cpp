@@ -4,6 +4,14 @@
 #include <algorithm>
 using namespace std;
 
+/*
+ * Changes in this version:
+ * - Read input with `cin >> country_s >> build_s >> destroy_s;`
+ *   so it works for one-line inputs like:
+ *     011,101,110 ABD,BAC,DCA ABD,BAC,DCA
+ * - Rest logic unchanged (Kruskal + Union-Find).
+ */
+
 // convert a letter into a numeric cost (A-Z -> 0-25, a-z -> 26-51)
 int getCost(char c){
     if ('A' <= c && c <= 'Z') return c - 'A';
@@ -45,26 +53,25 @@ int main(){
     cin.tie(nullptr);
 
     string country_s, build_s, destroy_s;
-    getline(cin, country_s);
-    getline(cin, build_s);
-    getline(cin, destroy_s);
+    // Read three tokens (works for one-line or multi-line inputs)
+    cin >> country_s >> build_s >> destroy_s;
 
-    // split
+    // split into rows
     vector<string> country = splitByComma(country_s);
     vector<string> build   = splitByComma(build_s);
     vector<string> destroy = splitByComma(destroy_s);
 
     int n = (int)country.size();
-    vector<pair<int, pair<int, int>>> edges;
+    vector<pair<int, pair<int, int>>> edges; // (weight, (u,v))
     long long base = 0;
 
-    // create edge list (just the upper triangle to avoid duplicates)
+    // create edge list (only upper triangle to avoid duplicates)
     for(int i=0; i<n; i++){
         for(int j=i+1; j<n; j++){
             if(country[i][j]=='1'){
                 int d = getCost(destroy[i][j]);
-                base += d;                         // assume we destroy all roads first
-                edges.push_back({-d, {i, j}});     // negative = saving if keep it
+                base += d;                         // assume destroy all first
+                edges.push_back({-d, {i, j}});     // saving if we keep it
             }else{
                 int b = getCost(build[i][j]);
                 edges.push_back({ b, {i, j}});     // cost to build a new road
@@ -72,25 +79,23 @@ int main(){
         }
     }
 
-    // sort all edges from smallest to largest cost
+    // sort edges by weight (smallest first)
     sort(edges.begin(), edges.end());
 
-    // set up the union-find parent array
+    // union-find init
     vector<int> parent(n);
     for(int i=0;i<n;i++) parent[i]=i;
 
     long long total = base;
 
-    // main Kruskal loop (build MST and minimize cost)
+    // Kruskal: pick edges if they connect different components
     for(size_t i=0; i<edges.size(); i++){
         int w = edges[i].first;
         int u = edges[i].second.first;
         int v = edges[i].second.second;
-
-        // if u and v are not connected yet, connect them
         if (findSet(u, parent) != findSet(v, parent)){
             unionSet(u, v, parent);
-            total += w;  // add cost (or saving if w<0)
+            total += w;  // add cost (or saving if negative)
         }
     }
 
